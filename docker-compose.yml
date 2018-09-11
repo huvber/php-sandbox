@@ -1,0 +1,37 @@
+version: "2.0"
+
+services:
+
+  backend:
+    build: ./docker/nginx
+    ports:
+      - 8002:80
+    volumes:
+      - ./html:/var/www/html
+    depends_on:
+      - php
+      - myadmin
+  mysql:
+    image: mysql:5.7
+    command: --default-authentication-plugin=mysql_native_password
+    volumes:
+      - ./database:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: sandbox
+    ports:
+      - 3306:3306
+  php:
+    build: ./docker/php
+    ports:
+      - 9002:9000
+    volumes:
+      - ./html:/var/www/html
+      - ./docker/php/php-extra-config.ini:/usr/local/etc/php/conf.d/php-extra-config.ini
+  myadmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      - PMA_HOST=mysql
+    ports:
+      - 9003:80
+    depends_on:
+      - mysql
